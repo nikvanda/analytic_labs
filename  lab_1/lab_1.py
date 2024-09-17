@@ -5,12 +5,18 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
+rng = np.random.default_rng(12345)
+
+N1 = 0
+N1_COUNT = 2
+N2 = 2
+N2_COUNT = 3
+
+
 class Exercise:
     __iris = datasets.load_iris(as_frame=True).frame
     __s = 9
     __df_size = 5
-    __n1 = 0
-    __n2 = 2
 
     @property
     def iris(self):
@@ -19,14 +25,6 @@ class Exercise:
     @property
     def s(self):
         return self.__s
-
-    @property
-    def n1(self):
-        return self.__n1
-
-    @property
-    def n2(self):
-        return self.__n2
 
     @property
     def df_size(self):
@@ -38,6 +36,15 @@ class Exercise:
         print(processed_data)
         self.iris.to_csv('ex1.csv')
         return processed_data
+
+    @staticmethod
+    def fill_random_nan(subset: pd.DataFrame, column: int, random_count: int) -> pd.DataFrame:
+        idxes = rng.integers(0, subset.shape[0], random_count)
+        print(idxes)
+        for i in range(random_count):
+            subset.iloc[i, column] = np.nan
+
+        return subset
 
     def display_subset(self, subset: pd.DataFrame = iris) -> None:
         """Ex 2"""
@@ -91,6 +98,13 @@ def main():
     normalized = ex.normalize(subset)
     ex.describe_subset(normalized)
     ex.write_to_csv(normalized, 'normalized.csv')
+
+    print(subset)
+    nan_subset = ex.fill_random_nan(subset, N1, N1_COUNT)
+    nan_subset = ex.fill_random_nan(nan_subset, N2, N2_COUNT)
+
+    ex.write_to_csv(nan_subset, 'nan_subset.csv')
+    print(nan_subset)
 
 
 if __name__ == '__main__':
