@@ -77,8 +77,9 @@ confusion_matrix = iris_df.drop('target', axis=1).corr()
 sns.heatmap(confusion_matrix)
 
 # plt.show()
-
+print('STANDARD')
 scaler = preprocessing.StandardScaler().fit(x_data)
+print(scaler)
 print(scaler.mean_)
 print(scaler.var_)
 print(scaler.scale_)
