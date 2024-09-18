@@ -83,14 +83,18 @@ class Exercise:
             print(f'Max: {subset.max()}')
             print(f'Min: {subset.min()}')
 
-    @staticmethod
-    def write_to_csv(subset: pd.DataFrame | np.ndarray, filename: str) -> None:
+    @classmethod
+    def write_to_csv(cls, subset: pd.DataFrame | np.ndarray, filename: str) -> None:
         """
         Write DataFrame to csv. If an argument is an array it converts it to DataFrame before writing
         """
         if isinstance(subset, np.ndarray):
-            subset = pd.DataFrame(subset)
+            subset = cls.convert_to_df(subset)
         subset.to_csv(filename)
+
+    @staticmethod
+    def convert_to_df(subset: np.ndarray, *, keys=None) -> pd.DataFrame:
+        return pd.DataFrame(subset, columns=keys)
 
     @staticmethod
     def fill_mean_nan(subset: pd.DataFrame) -> pd.DataFrame:
@@ -99,7 +103,7 @@ class Exercise:
         return subset.fillna(value=mean_by_columns)
 
     @staticmethod
-    def fill_imputer(subset: pd.DataFrame, strategy: str = 'mean') -> pd.DataFrame:
+    def fill_imputer(subset: pd.DataFrame, strategy: str = 'mean') -> np.array:
         return SimpleImputer(missing_values=np.nan, strategy=strategy).fit_transform(subset)
 
 
@@ -117,15 +121,13 @@ def main():
     ex.describe_subset(normalized)
     ex.write_to_csv(normalized, 'normalized.csv')
 
-    print(subset)
     nan_subset = ex.fill_random_nan(subset, N1, N1_COUNT)
     nan_subset = ex.fill_random_nan(nan_subset, N2, N2_COUNT)
 
     ex.write_to_csv(nan_subset, 'nan_subset.csv')
-    print(nan_subset)
 
     dropped_nan_subset = nan_subset.dropna()
-    print(dropped_nan_subset)
+    ex.describe_subset(dropped_nan_subset)
 
     ex.write_to_csv(dropped_nan_subset, 'dropped_nan.csv')
 
@@ -133,8 +135,9 @@ def main():
     ex.describe_subset(filled_mean_subset)
     ex.write_to_csv(filled_mean_subset, 'filled_mean_subset.csv')
 
-    imputed_subset = ex.fill_imputer(subset)
+    imputed_subset = ex.convert_to_df(ex.fill_imputer(nan_subset), keys=subset.keys().array)
     ex.describe_subset(imputed_subset)
+    ex.display_subset(imputed_subset)
     ex.write_to_csv(imputed_subset, 'imputer_mean.csv')
 
 
