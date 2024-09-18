@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn import datasets, preprocessing
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+from sklearn.impute import SimpleImputer
 
 rng = np.random.default_rng(12345)
 
@@ -39,6 +39,9 @@ class Exercise:
 
     @staticmethod
     def fill_random_nan(subset: pd.DataFrame, column: int, random_count: int) -> pd.DataFrame:
+        """
+        Set random values to nan.
+        """
         idxes = rng.integers(0, subset.shape[0], random_count)
         print(idxes)
         for i in range(random_count):
@@ -70,7 +73,9 @@ class Exercise:
 
     @staticmethod
     def describe_subset(subset: pd.DataFrame | np.ndarray) -> None:
-        """Show subset properties depending on its type"""
+        """
+        Show subset properties depending on its type
+        """
         if isinstance(subset, pd.DataFrame):
             print(subset.describe())
         else:
@@ -80,9 +85,22 @@ class Exercise:
 
     @staticmethod
     def write_to_csv(subset: pd.DataFrame | np.ndarray, filename: str) -> None:
+        """
+        Write DataFrame to csv. If an argument is an array it converts it to DataFrame before writing
+        """
         if isinstance(subset, np.ndarray):
             subset = pd.DataFrame(subset)
         subset.to_csv(filename)
+
+    @staticmethod
+    def fill_mean_nan(subset: pd.DataFrame) -> pd.DataFrame:
+        """Ex 3"""
+        mean_by_columns = {key: np.mean(column[[*map(lambda x: not x, np.isnan(column))]]) for key, column in zip(subset.keys(), subset.T.values)}
+        return subset.fillna(value=mean_by_columns)
+
+    @staticmethod
+    def fill_imputer(subset: pd.DataFrame, strategy: str = 'mean') -> pd.DataFrame:
+        return SimpleImputer(missing_values=np.nan, strategy=strategy).fit_transform(subset)
 
 
 def main():
@@ -105,6 +123,19 @@ def main():
 
     ex.write_to_csv(nan_subset, 'nan_subset.csv')
     print(nan_subset)
+
+    dropped_nan_subset = nan_subset.dropna()
+    print(dropped_nan_subset)
+
+    ex.write_to_csv(dropped_nan_subset, 'dropped_nan.csv')
+
+    filled_mean_subset = ex.fill_mean_nan(nan_subset)
+    ex.describe_subset(filled_mean_subset)
+    ex.write_to_csv(filled_mean_subset, 'filled_mean_subset.csv')
+
+    imputed_subset = ex.fill_imputer(subset)
+    ex.describe_subset(imputed_subset)
+    ex.write_to_csv(imputed_subset, 'imputer_mean.csv')
 
 
 if __name__ == '__main__':
