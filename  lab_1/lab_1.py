@@ -32,7 +32,9 @@ class Exercise:
 
     def get_subset(self) -> pd.DataFrame:
         """Ex 1"""
-        processed_data = self.iris.iloc[self.s:self.s + self.df_size]
+        processed_data = (pd.concat([self.iris[self.iris['target'] == 0][self.s:self.s + self.df_size],
+                                    self.iris[self.iris['target'] == 1][self.s:self.s + self.df_size],
+                                    self.iris[self.iris['target'] == 2][self.s:self.s + self.df_size]]))
         print(processed_data)
         self.iris.to_csv('ex1.csv')
         return processed_data
@@ -79,9 +81,7 @@ class Exercise:
         if isinstance(subset, pd.DataFrame):
             print(subset.describe())
         else:
-            print(f'Mean: {subset.mean()}')
-            print(f'Max: {subset.max()}')
-            print(f'Min: {subset.min()}')
+            print(Exercise.convert_to_df(subset).describe())
 
     @classmethod
     def write_to_csv(cls, subset: pd.DataFrame | np.ndarray, filename: str) -> None:
@@ -99,7 +99,8 @@ class Exercise:
     @staticmethod
     def fill_mean_nan(subset: pd.DataFrame) -> pd.DataFrame:
         """Ex 3"""
-        mean_by_columns = {key: np.mean(column[[*map(lambda x: not x, np.isnan(column))]]) for key, column in zip(subset.keys(), subset.T.values)}
+        mean_by_columns = {key: np.mean(column[[*map(lambda x: not x, np.isnan(column))]]) for key, column in
+                           zip(subset.keys(), subset.T.values)}
         return subset.fillna(value=mean_by_columns)
 
     @staticmethod
@@ -112,10 +113,13 @@ def main():
     subset = ex.get_subset()
     ex.describe_subset(subset)
     ex.display_subset(subset)
+    ex.write_to_csv(subset, 'based.csv')
+    print('Stan')
 
     standardized = ex.standardize(subset)
     ex.describe_subset(standardized)
     ex.write_to_csv(standardized, 'standardized.csv')
+    print('Norm')
 
     normalized = ex.normalize(subset)
     ex.describe_subset(normalized)
@@ -127,18 +131,38 @@ def main():
     ex.write_to_csv(nan_subset, 'nan_subset.csv')
 
     dropped_nan_subset = nan_subset.dropna()
+    print('DROPPED')
     ex.describe_subset(dropped_nan_subset)
-
     ex.write_to_csv(dropped_nan_subset, 'dropped_nan.csv')
 
+    ex.describe_subset(ex.standardize(dropped_nan_subset))
+    ex.write_to_csv(ex.standardize(dropped_nan_subset), 'dropped_nan_subset_standardized.csv')
+
+    ex.describe_subset(ex.normalize(dropped_nan_subset))
+    ex.write_to_csv(ex.normalize(dropped_nan_subset), 'dropped_nan_subset_normalized.csv')
+
     filled_mean_subset = ex.fill_mean_nan(nan_subset)
+    print('FILLED')
     ex.describe_subset(filled_mean_subset)
     ex.write_to_csv(filled_mean_subset, 'filled_mean_subset.csv')
 
+    ex.describe_subset(ex.standardize(filled_mean_subset))
+    ex.write_to_csv(ex.standardize(filled_mean_subset), 'filled_mean_subset_standardized.csv')
+
+    ex.describe_subset(ex.normalize(filled_mean_subset))
+    ex.write_to_csv(ex.normalize(filled_mean_subset), 'filled_mean_subset_normalized.csv')
+
     imputed_subset = ex.convert_to_df(ex.fill_imputer(nan_subset), keys=subset.keys().array)
+    print('IMPUTED')
     ex.describe_subset(imputed_subset)
     ex.display_subset(imputed_subset)
     ex.write_to_csv(imputed_subset, 'imputer_mean.csv')
+
+    ex.describe_subset(ex.normalize(imputed_subset))
+    ex.write_to_csv(ex.normalize(imputed_subset), 'imputed_mean_subset_normalized.csv')
+
+    ex.describe_subset(ex.standardize(imputed_subset))
+    ex.write_to_csv(ex.standardize(imputed_subset), 'imputed_mean_subset_stan.csv')
 
 
 if __name__ == '__main__':
