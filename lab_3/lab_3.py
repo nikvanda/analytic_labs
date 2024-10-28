@@ -82,8 +82,8 @@ class Exercise:
                 results.append(accuracy)
 
         print(f'Index of maximum accuracy: {np.argmax(results)}')
-        print(f'Maximum accuracy: {results[np.argmax(results)]}')  # task 2
-        print(f'Max_depth and max_features values: {indexes[np.argmax(results)]}')  # task 2
+        print(f'Максимум accuracy: {results[np.argmax(results)]}')  # task 2
+        print(f'Max_depth и max_features: {indexes[np.argmax(results)]}')  # task 2
         Visualizer.visualisation_task_2(accuracy_mtx, 'Accuracy', self.MAX_FEATURES_RANGE, self.MAX_DEPTH_RANGE)
         Visualizer.visualisation_task_2(precision_mtx, 'Precision', self.MAX_FEATURES_RANGE, self.MAX_DEPTH_RANGE)
         Visualizer.visualisation_task_2(recall_mtx, 'Recall', self.MAX_FEATURES_RANGE, self.MAX_DEPTH_RANGE)
@@ -96,7 +96,7 @@ class Exercise:
         }
         clf = DecisionTreeClassifier(random_state=self.rnd, criterion=self.c)
         grid_search = GridSearchCV(clf, param_grid, cv=self.cv, scoring='accuracy').fit(self.wine, self.target)
-        print(f"Best combination of parameters for GridSearchCV: {grid_search.best_params_}")
+        print(f"Лучшая комбинация параметров GridSearchCV: {grid_search.best_params_}")
         print(f"Best accuracy GridSearchCV: {grid_search.best_score_}")
 
     def task_4(self, classifier: AdaBoostClassifier | RandomForestClassifier):
@@ -142,10 +142,10 @@ def main():
     Visualizer.plot_graph(forest_precision, 'Precision', title, ex.N_ESTIMATORS_RANGE)
     Visualizer.plot_graph(forest_recall, 'Recall', title, ex.N_ESTIMATORS_RANGE)
 
-    print(f'Best n_estimator for AdaBoostClassifier: {np.argmax(ada_accuracy)}')
-    print(f'Best accuracy for AdaBoostClassifier: {ada_accuracy[np.argmax(ada_accuracy)]}')
-    print(f'Best n_estimator for RandomForestClassifier:b{np.argmax(forest_accuracy)}')
-    print(f'Best accuracy for RandomForestClassifier: {forest_accuracy[np.argmax(ada_accuracy)]}')
+    print(f'Лучшее значение для n_estimator AdaBoostClassifier: {np.argmax(ada_accuracy)}')
+    print(f'Лучшее значение для accuracy AdaBoostClassifier: {ada_accuracy[np.argmax(ada_accuracy)]}')
+    print(f'Лучшее значение для n_estimator RandomForestClassifier:b{np.argmax(forest_accuracy)}')
+    print(f'Лучшее значение для accuracy RandomForestClassifier: {forest_accuracy[np.argmax(ada_accuracy)]}')
 
 
 if __name__ == '__main__':
