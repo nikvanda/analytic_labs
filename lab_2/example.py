@@ -1,49 +1,48 @@
+import math
+
 import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.colors import ListedColormap
-from sklearn.model_selection import train_test_split
-from sklearn import datasets, neighbors
+import numpy as np
+
+# Пример данных
+X = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+Y = [100, 75, 55, 40, 30, 20, 15, 10, 10, 5, 5]
+n = 11
+
+def create_plot(x, y):
+    # Создание точечного графика
+    plt.scatter(x, y, color='blue', marker='o')
+
+    # Добавление заголовка и меток осей
+    plt.title('Точечный график')
+    plt.xlabel('Ось X')
+    plt.ylabel('Ось Y')
+
+    # Показ графика
+    plt.grid(True)
+    plt.show()
+
+
+def find_linear(x_input, y):
+    A = ((n * sum([x * y for x, y in zip(X, Y)]) - sum(X) * sum(Y)) /
+         (n * sum(map(lambda x1: x1 ** 2, X)) - (sum(X) ** 2)))
+    print(A)
+    create_plot(X, Y)
+    B = (sum(Y) / n) - A * (sum(X) / n)
+    print(B)
+
+    Y_1 = [A * x + B for x in X]
+    print(Y_1)
+    create_plot(X, Y_1)
+
+    b_1 = math.e ** B
+    print(b_1)
+    y_2 = [b_1 * (math.e ** (A * x)) for x in X]
+    print(y_2)
+    create_plot(X, y_2)
 
 
 def main():
-    k = 40
-    iris = datasets.load_iris()
-    # print(iris)
-    print(type(iris))
-    print(iris.keys())
-    print(iris['data'])
-    print(iris['target_names'])
-    print(iris['target'])
-    X = iris.data[:, 1:3]
-    y = iris.target
-    print(X)
-    print(y)
-    x_train, x_test, y_train, y_test = train_test_split(X, y, train_size=0.8, random_state=0)
-
-    print(x_train.shape)
-    print(x_test.shape)
-    print(y_train.shape)
-    print(y_test.shape)
-
-    cmap = ['darkorange', 'c', 'darkblue']
-
-    knn = neighbors.KNeighborsClassifier(k)
-    knn.fit(x_train, y_train)
-    _, ax = plt.subplots()
-
-    sns.scatterplot(
-        x=X[:, 0],
-        y=X[:, 1],
-        hue=iris.target_names[y],
-        palette=cmap,
-        alpha=1.0,
-        edgecolor='black',
-    )
-    plt.title(f'3-Class classification (k = {k})')
-    plt.show()
-
-    score = knn.score(x_test, y_test)
-    print(score)
+    find_linear(X, Y)
 
 
 if __name__ == '__main__':
