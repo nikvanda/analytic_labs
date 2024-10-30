@@ -43,12 +43,15 @@ class Exercise:
 
     def __init__(self, cv: int, rnd_st: int, c_param: str, p_param: str, s1: int, s2: int, s3: int):
         df = datasets.load_wine(as_frame=True)['frame']
-        target = df.target
         self.s1, self.s2, self.s3 = s1, s2, s3
-        wine = pd.concat([df[target == 0][self.s1:self.s1 + 40],
-                          df[target == 1][self.s2:self.s2 + 40],
-                          df[target == 2][self.s3:self.s3 + 40]])
-        self.wine, self.target = np.array(wine.drop('target', axis=1)), np.array(target)
+
+        wine_0 = df[df.target == 0].iloc[self.s1:self.s1 + 40]
+        wine_1 = df[df.target == 1].iloc[self.s2:self.s2 + 40]
+        wine_2 = df[df.target == 2].iloc[self.s3:self.s3 + 40]
+
+        wine = pd.concat([wine_0, wine_1, wine_2])
+        self.wine, self.target = wine.drop('target', axis=1).values, wine['target'].values
+
         self.cv, self.rnd = cv, rnd_st
         self.c, self.p = c_param, p_param
 
@@ -81,9 +84,6 @@ class Exercise:
                 indexes.append([max_depth, max_features])
                 results.append(accuracy)
 
-        print(f'Index of maximum accuracy: {np.argmax(results)}')
-        print(f'Максимум accuracy: {results[np.argmax(results)]}')  # task 2
-        print(f'Max_depth и max_features: {indexes[np.argmax(results)]}')  # task 2
         Visualizer.visualisation_task_2(accuracy_mtx, 'Accuracy', self.MAX_FEATURES_RANGE, self.MAX_DEPTH_RANGE)
         Visualizer.visualisation_task_2(precision_mtx, 'Precision', self.MAX_FEATURES_RANGE, self.MAX_DEPTH_RANGE)
         Visualizer.visualisation_task_2(recall_mtx, 'Recall', self.MAX_FEATURES_RANGE, self.MAX_DEPTH_RANGE)
@@ -96,8 +96,6 @@ class Exercise:
         }
         clf = DecisionTreeClassifier(random_state=self.rnd, criterion=self.c)
         grid_search = GridSearchCV(clf, param_grid, cv=self.cv, scoring='accuracy').fit(self.wine, self.target)
-        print(f"Лучшая комбинация параметров GridSearchCV: {grid_search.best_params_}")
-        print(f"Best accuracy GridSearchCV: {grid_search.best_score_}")
 
     def task_4(self, classifier: AdaBoostClassifier | RandomForestClassifier):
         accuracy_scores, precision_scores, recall_scores = [], [], []
@@ -141,11 +139,6 @@ def main():
     Visualizer.plot_graph(forest_accuracy, 'Accuracy', title, ex.N_ESTIMATORS_RANGE)
     Visualizer.plot_graph(forest_precision, 'Precision', title, ex.N_ESTIMATORS_RANGE)
     Visualizer.plot_graph(forest_recall, 'Recall', title, ex.N_ESTIMATORS_RANGE)
-
-    print(f'Лучшее значение для n_estimator AdaBoostClassifier: {np.argmax(ada_accuracy)}')
-    print(f'Лучшее значение для accuracy AdaBoostClassifier: {ada_accuracy[np.argmax(ada_accuracy)]}')
-    print(f'Лучшее значение для n_estimator RandomForestClassifier:b{np.argmax(forest_accuracy)}')
-    print(f'Лучшее значение для accuracy RandomForestClassifier: {forest_accuracy[np.argmax(ada_accuracy)]}')
 
 
 if __name__ == '__main__':
