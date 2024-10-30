@@ -13,6 +13,31 @@ MIN_SAMPLES_RANGE = range(1, 11)
 DAMPING_RANGE = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95]
 
 
+# Функция для добавления n_clusters в кортежи
+def add_n_clusters_if_present(results, key, is_dbscan=False):
+    if results['n_clusters']:
+        if is_dbscan:
+            return [(tup[0], tup[1], round(float(tup[2]), 3), results['n_clusters'][i]) for i, tup in enumerate(results[key])]
+        else:
+            return [(tup[0], round(float(tup[1]), 3), results['n_clusters'][i]) for i, tup in enumerate(results[key])]
+    else:
+        return [(tup[0], round(float(tup[1]), 3)) if len(tup) == 2 else (tup[0], tup[1], round(float(tup[2]), 3)) for tup in results[key]]
+
+
+def table_1(results, filename, is_dbscan=False):
+    # Проверяем и добавляем n_clusters, если они есть
+    results['adjusted_rand'] = add_n_clusters_if_present(results, 'adjusted_rand', is_dbscan)
+    results['jaccard'] = add_n_clusters_if_present(results, 'jaccard', is_dbscan)
+    results['fowlkes_mallows'] = add_n_clusters_if_present(results, 'fowlkes_mallows', is_dbscan)
+
+    df = pd.DataFrame({
+        'Adjusted Rand': results['adjusted_rand'],
+        'Jaccard': results['jaccard'],
+        'Fowlkes Mallows': results['fowlkes_mallows']
+    })
+    df.to_excel(filename, index=False)
+
+
 def compare_plot(results_dict, metrics):
     for metric in metrics:
         plt.figure(figsize=(10, 7))
@@ -23,12 +48,38 @@ def compare_plot(results_dict, metrics):
                 x = [tup[0] for tup in result[metric]]
             y = [tup[-1] for tup in result[metric]]
             plt.scatter(x, y, label=f'{alg_name} - {metric}')
+
         plt.title(f'{metric.capitalize()} score vs. Number of Clusters')
         plt.xlabel('Number of Clusters')
         plt.ylabel(f'{metric.capitalize()} score')
         plt.legend()
         plt.grid(True)
         plt.show()
+    # plt.figure(figsize=(10, 7))
+    # for alg_name, result in results_dict.items():
+    #     for metric in metrics:
+    #         if result['n_clusters']:
+    #             x = result['n_clusters']
+    #         else:
+    #             x = [tup[0] for tup in result[metric]]
+    #
+    #         # Извлекаем значения метрики (последний элемент кортежа)
+    #         y = [tup[-1] for tup in result[metric]]
+    #
+    #         # Строим график
+    #         plt.scatter(x, y, label=f'{alg_name} - {metric}')
+    #
+    # plt.title(f'Clustering Metrics vs. Number of Clusters')
+    # plt.xlabel('Number of Clusters')
+    # plt.ylabel('Metric Values')
+    # plt.legend()
+    # plt.grid(True)
+    # plt.show()
+
+
+# Пример использования:
+algorithms = ['MeanShift', 'DBSCAN', 'Affinity']
+metrics = ['adjusted_rand', 'jaccard', 'fowlkes_mallows']
 
 
 def plot_agglomerate(results, metric_name, n_clusters=None):
@@ -74,7 +125,8 @@ def plot_dbscan(results, metric_name, n_clusters=None):
     sc = plt.scatter(eps_vals, min_samples_vals, c=scores, cmap='viridis', s=100)
     plt.colorbar(sc, label=metric_name)
     for i in range(len(eps_vals)):
-        plt.text(eps_vals[i], min_samples_vals[i], f'{scores[i]:.2f}', fontsize=9, ha='right', va='bottom')
+        plt.text(eps_vals[i], min_samples_vals[i], f'{scores[i]:.2f}', fontsize=9,
+                 ha='right', va='bottom')
     plt.xlabel('eps')
     plt.ylabel('min_samples')
     plt.title(f'{metric_name} for DBSCAN')
@@ -92,6 +144,7 @@ def plot_affinity(results, metric_name, n_clusters=None):
     plt.title(f'{metric_name} for Affinity Propagation')
     plt.grid()
     plt.show()
+
 
 
 def prepared_data(df):
