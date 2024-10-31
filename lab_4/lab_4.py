@@ -55,26 +55,6 @@ def compare_plot(results_dict, metrics):
         plt.legend()
         plt.grid(True)
         plt.show()
-    # plt.figure(figsize=(10, 7))
-    # for alg_name, result in results_dict.items():
-    #     for metric in metrics:
-    #         if result['n_clusters']:
-    #             x = result['n_clusters']
-    #         else:
-    #             x = [tup[0] for tup in result[metric]]
-    #
-    #         # Извлекаем значения метрики (последний элемент кортежа)
-    #         y = [tup[-1] for tup in result[metric]]
-    #
-    #         # Строим график
-    #         plt.scatter(x, y, label=f'{alg_name} - {metric}')
-    #
-    # plt.title(f'Clustering Metrics vs. Number of Clusters')
-    # plt.xlabel('Number of Clusters')
-    # plt.ylabel('Metric Values')
-    # plt.legend()
-    # plt.grid(True)
-    # plt.show()
 
 
 # Пример использования:
@@ -144,7 +124,6 @@ def plot_affinity(results, metric_name, n_clusters=None):
     plt.title(f'{metric_name} for Affinity Propagation')
     plt.grid()
     plt.show()
-
 
 
 def prepared_data(df):
