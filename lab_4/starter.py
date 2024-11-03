@@ -1,0 +1,7 @@
+S1, S2, S3 = 9, 2, 1
+METHODS = ['single', 'complete', 'average', 'ward']
+N_CLUSTERS_RANGE = range(1, 11)
+BANDWIDTH_RANGE = [0.006, 0.007, 0.008, 0.009, 0.01, 0.011]
+EPS_RANGE = [0.007, 0.008, 0.009, 0.01, 0.011, 0.012]
+MIN_SAMPLES_RANGE = range(1, 11)
+DAMPING_RANGE = [0.98, 0.981, 0.982, 0.983, 0.984, 0.985, 0.986, 0.987, 0.988, 0.989, 0.99]

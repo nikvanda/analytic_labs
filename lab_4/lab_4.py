@@ -7,10 +7,10 @@ from sklearn.cluster import AgglomerativeClustering, KMeans, MeanShift, DBSCAN, 
 S1, S2, S3 = 9, 2, 1
 METHODS = ['single', 'complete', 'average', 'ward']
 N_CLUSTERS_RANGE = range(1, 11)
-BANDWIDTH_RANGE = [0.005, 0.01, 0.02, 0.03, 0.04, 0.05]
-EPS_RANGE = [0.005, 0.006, 0.007, 0.008, 0.009, 0.01]
+BANDWIDTH_RANGE = [0.006, 0.007, 0.008, 0.009, 0.01, 0.011]
+EPS_RANGE = [0.007, 0.008, 0.009, 0.01, 0.011, 0.012]
 MIN_SAMPLES_RANGE = range(1, 11)
-DAMPING_RANGE = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95]
+DAMPING_RANGE = [0.98, 0.981, 0.982, 0.983, 0.984, 0.985, 0.986, 0.987, 0.988, 0.989, 0.99]
 
 
 # Функция для добавления n_clusters в кортежи
@@ -57,17 +57,12 @@ def compare_plot(results_dict, metrics):
         plt.show()
 
 
-# Пример использования:
-algorithms = ['MeanShift', 'DBSCAN', 'Affinity']
-metrics = ['adjusted_rand', 'jaccard', 'fowlkes_mallows']
-
-
 def plot_agglomerate(results, metric_name, n_clusters=None):
     plt.figure(figsize=(10, 6))
     for method in METHODS:
         method_results = [(n_clusters, score) for n_clusters, m, score in results if m == method]
         n_clusters_values, scores = zip(*method_results)
-        plt.plot(n_clusters_values, scores, label=f'{method} linkage', marker='o')
+        plt.plot(n_clusters_values, scores, label=f'{method}', marker='o')
 
     plt.title(f'{metric_name} for Different Linkage Methods')
     plt.xlabel('Number of Clusters')
@@ -231,6 +226,7 @@ def main():
     agglomerative_results = evaluate_clustering(normalize_arr, y_true,
                                                 agglomerative_model, agglomerative_params)
     best_rand, best_jaccard, best_fowlkes, _, _, _ = get_best_values(agglomerative_results)
+    print('agglomerative_results')
     print(f'Best Adjusted Rand Score: {best_rand[2]:.4f} -----> n_clusters = {best_rand[0]}, linkage = {best_rand[1]}')
     print(
         f'Best Jaccard Score: {best_jaccard[2]:.4f} -----> n_clusters = {best_jaccard[0]}, linkage = {best_jaccard[1]}')
@@ -238,12 +234,14 @@ def main():
         f'Best Fowlkes Mallows Score: {best_fowlkes[2]:.4f} -----> n_clusters = {best_fowlkes[0]}, linkage = {best_fowlkes[1]}\n')
     kmeans_results = evaluate_clustering(normalize_arr, y_true, k_means_model, N_CLUSTERS_RANGE)
     best_rand, best_jaccard, best_fowlkes, _, _, _ = get_best_values(kmeans_results)
+    print('kmeans_results')
     print(f'Best Adjusted Rand Score: {best_rand[1]:.4f} -----> n_clusters = {best_rand[0]}')
     print(f'Best Jaccard Score: {best_jaccard[1]:.4f} -----> n_clusters = {best_jaccard[0]}')
     print(f'Best Fowlkes Mallows Score: {best_fowlkes[1]:.4f} -----> n_clusters = {best_fowlkes[0]}\n')
     meanshift_results = evaluate_clustering(normalize_arr, y_true,
                                             mean_shift_model, BANDWIDTH_RANGE, True)
     best_rand, best_jaccard, best_fowlkes, i_rand, i_jacc, i_fowl = get_best_values(meanshift_results, True)
+    print('meanshift_results')
     print(
         f'Best Adjusted Rand Score: {best_rand[1]:.4f} -----> bandwidth = {best_rand[0]}, 'f'n_cluster = {meanshift_results["n_clusters"][i_rand]}')
     print(
@@ -253,6 +251,7 @@ def main():
     dbscan_params = [(eps, min_samples) for eps in EPS_RANGE for min_samples in MIN_SAMPLES_RANGE]
     dbscan_results = evaluate_clustering(normalize_arr, y_true, dbscan_model, dbscan_params, True)
     best_rand, best_jaccard, best_fowlkes, i_rand, i_jacc, i_fowl = get_best_values(dbscan_results, True)
+    print('dbscan_results')
     print(
         f'Best Adjusted Rand Score: {best_rand[2]:.4f} -----> eps = {best_rand[0]}, 'f'min_samples = {best_rand[1]}, n_clusters = {dbscan_results["n_clusters"][i_rand]}')
     print(
@@ -261,17 +260,18 @@ def main():
         f'Best Fowlkes Mallows Score: {best_fowlkes[2]:.4f} -----> eps = {best_fowlkes[0]}, 'f'min_samples = {best_fowlkes[1]}, n_clusters ={dbscan_results["n_clusters"][i_fowl]}\n')
     affinity_results = evaluate_clustering(normalize_arr, y_true, affinity_model, DAMPING_RANGE, True)
     best_rand, best_jaccard, best_fowlkes, i_rand, i_jacc, i_fowl = get_best_values(affinity_results, True)
+    print('affinity_results')
     print(
         f'Best Adjusted Rand Score: {best_rand[1]:.4f} -----> damping = {best_rand[0]} 'f'n_clusters = {affinity_results["n_clusters"][i_rand]}')
     print(
         f'Best Jaccard Score: {best_jaccard[1]:.4f} -----> damping = {best_jaccard[0]} 'f'n_clusters = {affinity_results["n_clusters"][i_jacc]}')
     print(f'Best Fowlkes Mallows Score: {best_fowlkes[1]:.4f} -----> damping= {best_fowlkes[0]} '
           f'n_clusters = {affinity_results["n_clusters"][i_fowl]}\n')
-    visualize_results(agglomerative_results, plot_agglomerate, 'N_CLUSTERS')
-    visualize_results(kmeans_results, plot_k_means, 'N_CLUSTERS')
-    visualize_results(meanshift_results, plot_mean_shift, 'BANDWIDTH')
+    visualize_results(agglomerative_results, plot_agglomerate, 'N_CLUSTERS_RANGE')
+    visualize_results(kmeans_results, plot_k_means, 'N_CLUSTERS_RANGE')
+    visualize_results(meanshift_results, plot_mean_shift, 'BANDWIDTH_RANGE')
     visualize_results(dbscan_results, plot_dbscan, 'EPS and MIN_SAMPLES')
-    visualize_results(affinity_results, plot_affinity, 'DAMPING')
+    visualize_results(affinity_results, plot_affinity, 'DAMPING_RANGE')
     results_dict = {
         'Agglomerative': agglomerative_results,
         'KMeans': kmeans_results,
@@ -281,6 +281,11 @@ def main():
     }
     metrics_ = ['adjusted_rand', 'jaccard', 'fowlkes_mallows']
     compare_plot(results_dict, metrics_)
+    table_1(agglomerative_results, 'agglomerative_results.xlsx')
+    table_1(kmeans_results, 'kmeans_results.xlsx')
+    table_1(meanshift_results, 'meanshift_results.xlsx')
+    table_1(dbscan_results, 'dbscan_results.xlsx', is_dbscan=True)
+    table_1(affinity_results, 'affinity_results.xlsx')
 
 
 if __name__ == '__main__':
