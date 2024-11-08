@@ -9,7 +9,7 @@ import random
 
 S = 5
 C = [0, 2, 3, 4, 5, 7]
-N_COMPONENTS = range(3, 13)
+N_COMPONENTS = range(1, 11)
 
 
 def prepared_data(df):
